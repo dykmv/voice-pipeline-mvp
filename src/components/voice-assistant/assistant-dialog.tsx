@@ -75,14 +75,45 @@ export function AssistantDialog({ onActionApplied, leadContext }: AssistantDialo
 
   return (
     <>
-      {/* FAB — always visible when dialog is closed */}
+      {/* Sticky input bar — always visible at bottom center */}
       {!isOpen && (
-        <button
-          onClick={startListening}
-          className="fixed bottom-20 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_0_24px_rgba(239,169,67,0.3)] transition-all hover:scale-105 hover:shadow-[0_0_36px_rgba(239,169,67,0.4)] active:scale-95 md:bottom-6 md:right-6"
-        >
-          <Mic className="h-6 w-6" />
-        </button>
+        <div className="fixed bottom-16 left-0 right-0 z-50 px-4 md:bottom-4">
+          <div className="mx-auto flex max-w-lg items-center gap-2 rounded-2xl border border-border bg-card/95 px-3 py-2 shadow-[0_4px_32px_rgba(0,0,0,0.4)] backdrop-blur-md">
+            <input
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && textInput.trim()) {
+                  e.preventDefault()
+                  const msg = textInput
+                  setTextInput("")
+                  sendText(msg)
+                }
+              }}
+              placeholder="Ask about a lead or dictate an update..."
+              className="flex-1 bg-transparent px-2 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none"
+            />
+            {textInput.trim() ? (
+              <button
+                onClick={() => {
+                  const msg = textInput
+                  setTextInput("")
+                  sendText(msg)
+                }}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all hover:opacity-90"
+              >
+                <Send className="h-4 w-4" />
+              </button>
+            ) : (
+              <button
+                onClick={startListening}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_0_16px_rgba(239,169,67,0.25)] transition-all hover:scale-105 hover:shadow-[0_0_24px_rgba(239,169,67,0.35)] active:scale-95"
+              >
+                <Mic className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Full-screen modal overlay */}
