@@ -3,21 +3,22 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Lead {
   id            String   @id @default(cuid())
-  userId        String   @default("default-user") // Ready for auth later
+  userId        String   @default("default-user")
   name          String
   phone         String   @default("")
   email         String   @default("")
-  source        String   @default("")     // Bazaraki, Facebook, WhatsApp, Referral, Other
+  source        String   @default("")
   budget        String   @default("")
-  propertyType  String   @default("")     // Apartment, House, Villa, Commercial, Land
+  propertyType  String   @default("")
   location      String   @default("")
-  status        String   @default("new")  // new, contacted, viewing, deal, won, lost
+  status        String   @default("new")
   followUpDate  DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -33,7 +34,7 @@ model Note {
   id        String   @id @default(cuid())
   leadId    String
   text      String
-  type      String   @default("note")  // note, status_change, voice
+  type      String   @default("note")
   createdAt DateTime @default(now())
 
   lead Lead @relation(fields: [leadId], references: [id])
