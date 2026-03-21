@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Pipeline — Voice-First Lead Tracker for Real Estate Agents</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --color-black: #000000;
+      --color-white: #ffffff;
+      --color-surface-dark: #262626;
+      --color-shell-bg: #1a1a1a;
+      --color-shell-stroke: rgba(255,255,255,0.10);
+      --color-shell-stroke-hover: rgba(255,255,255,0.18);
+      --color-accent-yellow: #EFA943;
+      --color-accent-yellow-dim: rgba(239,169,67,0.12);
+      --color-accent-yellow-glow: rgba(239,169,67,0.20);
+      --color-accent-blue: #15B8FF;
+      --color-accent-blue-dim: rgba(21,184,255,0.12);
+      --color-accent-green: #37DF7A;
+      --color-accent-green-dim: rgba(55,223,122,0.12);
+      --color-accent-red: #DA3A3A;
+      --color-text-on-dark: #ffffff;
+      --color-text-on-dark-60: rgba(255,255,255,0.6);
+      --color-text-on-dark-40: rgba(255,255,255,0.4);
+      --color-text-on-dark-20: rgba(255,255,255,0.2);
+      --tracking-hero: -0.06em;
+      --tracking-h2: -0.05em;
+      --tracking-tight: -0.03em;
+      --radius-xs: 8px;
+      --radius-sm: 16px;
+      --radius-md: 24px;
+      --radius-lg: 32px;
+      --radius-pill: 100px;
+      --shadow-md: 0 20px 64px rgba(0,0,0,0.25);
+    }
+
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth;font-size:16px}
+    body{
+      font-family:var(--font-sans);background:var(--color-black);
+      color:var(--color-text-on-dark);line-height:1.5;
+      overflow-x:hidden;-webkit-font-smoothing:antialiased;
+      letter-spacing:var(--tracking-tight);
+    }
+
+    .container{max-width:1120px;margin:0 auto;padding:0 48px}
+    section{padding:100px 0;position:relative}
+
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+    .reveal.vis{opacity:1;transform:translateY(0)}
+    .d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
+
+    h1{font-size:clamp(2.2rem,4.5vw,3.5rem);font-weight:500;letter-spacing:var(--tracking-hero);line-height:1.08}
+    h2{font-size:clamp(1.8rem,3.6vw,2.8rem);font-weight:500;letter-spacing:var(--tracking-h2);line-height:1.1;margin-bottom:16px}
+    h3{font-size:1.1rem;font-weight:500;letter-spacing:var(--tracking-tight);line-height:1.3;margin-bottom:8px}
+    p{color:var(--color-text-on-dark-60);font-size:1rem;line-height:1.6;max-width:600px}
+
+    .label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--color-accent-yellow);margin-bottom:12px;display:block}
+    .yellow{color:var(--color-accent-yellow)}
+    .blue{color:var(--color-accent-blue)}
+
+    .btn{
+      display:inline-flex;align-items:center;gap:8px;
+      font-family:var(--font-sans);font-size:.95rem;font-weight:500;
+      letter-spacing:var(--tracking-tight);padding:14px 32px;
+      border-radius:var(--radius-pill);text-decoration:none;border:none;cursor:pointer;transition:all .2s ease;
+    }
+    .btn-cta{background:var(--color-accent-yellow);color:var(--color-black);box-shadow:0 0 20px var(--color-accent-yellow-glow)}
+    .btn-cta:hover{transform:translateY(-2px);box-shadow:0 4px 32px var(--color-accent-yellow-glow)}
+    .btn-cta svg{width:18px;height:18px;fill:var(--color-black)}
+    .btn-ghost{background:transparent;color:var(--color-text-on-dark);border:1px solid var(--color-shell-stroke)}
+    .btn-ghost:hover{border-color:var(--color-accent-yellow);color:var(--color-accent-yellow)}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 0;transition:all .25s ease}
+    nav.scrolled{background:rgba(0,0,0,.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--color-shell-stroke);padding:14px 0}
+    nav .container{display:flex;justify-content:space-between;align-items:center}
+    .nav-brand{font-size:1.1rem;font-weight:600;color:var(--color-text-on-dark);text-decoration:none;letter-spacing:-.04em}
+    .nav-brand span{color:var(--color-accent-yellow)}
+    nav .btn{padding:10px 22px;font-size:.82rem}
+
+    .sec-alt{background:var(--color-shell-bg)}
+
+    /* ===== HERO — two columns ===== */
+    .hero{min-height:100vh;display:flex;align-items:center;padding-top:90px;padding-bottom:60px}
+    .hero-grid{display:grid;grid-template-columns:1fr auto;gap:64px;align-items:center}
+    .hero-tag{
+      display:inline-flex;align-items:center;gap:6px;
+      background:var(--color-accent-yellow-dim);color:var(--color-accent-yellow);
+      font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+      padding:5px 14px;border-radius:var(--radius-pill);margin-bottom:20px;
+    }
+    .hero h1{margin-bottom:20px}
+    .hero p{font-size:1.1rem;margin-bottom:32px;max-width:460px}
+    .hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+
+    /* ===== iPhone mockup ===== */
+    .iphone{
+      width:300px;height:620px;
+      background:#111;
+      border-radius:48px;
+      border:3px solid #333;
+      box-shadow:var(--shadow-md),0 0 0 1px rgba(255,255,255,0.05),0 0 80px rgba(239,169,67,0.08);
+      position:relative;
+      overflow:hidden;
+      flex-shrink:0;
+    }
+    /* Dynamic Island */
+    .iphone::before{
+      content:'';position:absolute;top:10px;left:50%;transform:translateX(-50%);
+      width:100px;height:28px;background:#000;border-radius:20px;z-index:10;
+    }
+    /* Bottom bar */
+    .iphone::after{
+      content:'';position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+      width:120px;height:4px;background:rgba(255,255,255,0.25);border-radius:4px;z-index:10;
+    }
+
+    .iphone-screen{
+      position:absolute;inset:3px;border-radius:45px;overflow:hidden;
+      background:var(--color-black);display:flex;flex-direction:column;
+    }
+
+    /* Status bar */
+    .status-bar{
+      height:52px;padding:14px 28px 0;display:flex;justify-content:space-between;
+      align-items:flex-start;font-size:.6rem;font-weight:600;color:var(--color-text-on-dark);
+      flex-shrink:0;
+    }
+    .status-bar .time{font-size:.72rem;font-weight:600}
+    .status-icons{display:flex;gap:4px;align-items:center}
+    .status-icons span{font-size:.55rem}
+
+    /* App header */
+    .app-header{
+      padding:8px 16px 0;display:flex;justify-content:space-between;align-items:center;
+      flex-shrink:0;
+    }
+    .app-title{font-size:.95rem;font-weight:600;letter-spacing:-.02em}
+    .app-mic{
+      width:32px;height:32px;border-radius:50%;background:var(--color-accent-yellow);
+      display:flex;align-items:center;justify-content:center;
+      animation:pulse 2.2s ease-in-out infinite;box-shadow:0 0 12px var(--color-accent-yellow-glow);
+    }
+    .app-mic svg{width:14px;height:14px;fill:var(--color-black)}
+    @keyframes pulse{0%,100%{box-shadow:0 0 12px var(--color-accent-yellow-glow);transform:scale(1)}50%{box-shadow:0 0 24px var(--color-accent-yellow-glow);transform:scale(1.06)}}
+
+    /* Tabs */
+    .app-tabs{
+      display:flex;gap:0;margin:10px 16px 0;background:var(--color-surface-dark);
+      border-radius:var(--radius-xs);padding:2px;flex-shrink:0;
+    }
+    .app-tab{
+      flex:1;text-align:center;font-size:.68rem;font-weight:500;padding:6px 0;
+      border-radius:6px;color:var(--color-text-on-dark-40);cursor:pointer;transition:all .2s;
+      user-select:none;
+    }
+    .app-tab.active{background:var(--color-accent-yellow);color:var(--color-black)}
+
+    /* Scrollable content */
+    .app-content{flex:1;overflow-y:auto;padding:10px 16px 16px;position:relative}
+    .app-content::-webkit-scrollbar{display:none}
+
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+
+    /* Mobile pipeline — horizontal scroll columns */
+    .m-cols{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory}
+    .m-cols::-webkit-scrollbar{display:none}
+    .m-col{min-width:200px;flex-shrink:0;scroll-snap-align:start}
+    .m-col-head{
+      font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+      color:var(--color-text-on-dark-40);padding-bottom:6px;margin-bottom:8px;
+      border-bottom:1px solid var(--color-shell-stroke);
+      display:flex;justify-content:space-between;align-items:center;
+    }
+    .m-col-count{
+      background:var(--color-surface-dark);border-radius:50%;
+      width:16px;height:16px;display:flex;align-items:center;justify-content:center;
+      font-size:.5rem;
+    }
+
+    .m-chip{
+      background:var(--color-shell-bg);border:1px solid var(--color-shell-stroke);
+      border-radius:var(--radius-xs);padding:10px;margin-bottom:6px;
+      font-size:.68rem;color:var(--color-text-on-dark-60);
+    }
+    .m-chip .mn{font-weight:600;color:var(--color-text-on-dark);font-size:.74rem;margin-bottom:2px}
+    .m-chip.hi{border-color:var(--color-accent-yellow);background:var(--color-accent-yellow-dim)}
+    .m-chip.od{border-left:3px solid var(--color-accent-red)}
+    .m-chip.won{border-left:3px solid var(--color-accent-green)}
+    .m-chip .mt{
+      display:inline-block;font-size:.55rem;font-weight:600;
+      color:var(--color-accent-blue);background:var(--color-accent-blue-dim);
+      padding:1px 5px;border-radius:3px;margin-top:3px;
+    }
+    .m-chip .mm{display:flex;justify-content:space-between;align-items:center;margin-top:4px;font-size:.55rem;color:var(--color-text-on-dark-40)}
+
+    /* Mobile voice bar */
+    .m-vbar{
+      position:sticky;bottom:0;left:0;right:0;
+      background:var(--color-surface-dark);border:1px solid var(--color-shell-stroke);
+      border-radius:var(--radius-xs);padding:8px 12px;margin-top:8px;
+      display:flex;align-items:center;gap:8px;
+    }
+    .m-wav{display:flex;align-items:center;gap:2px;height:16px}
+    .m-wav span{display:block;width:2px;border-radius:2px;background:var(--color-accent-yellow);animation:w 1.2s ease-in-out infinite}
+    .m-wav span:nth-child(1){height:4px;animation-delay:0s}
+    .m-wav span:nth-child(2){height:10px;animation-delay:.1s}
+    .m-wav span:nth-child(3){height:16px;animation-delay:.2s}
+    .m-wav span:nth-child(4){height:8px;animation-delay:.3s}
+    .m-wav span:nth-child(5){height:12px;animation-delay:.4s}
+    @keyframes w{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.35)}}
+    .m-vbar .mvt{font-size:.65rem;color:var(--color-text-on-dark-40);font-style:italic;flex:1}
+    .m-vbar .mvt b{color:var(--color-accent-yellow);font-style:normal}
+
+    /* Today view */
+    .today-header{
+      font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
+      color:var(--color-text-on-dark-40);margin-bottom:8px;margin-top:4px;
+      display:flex;justify-content:space-between;
+    }
+    .today-date{color:var(--color-accent-yellow)}
+
+    .today-item{
+      background:var(--color-shell-bg);border:1px solid var(--color-shell-stroke);
+      border-radius:var(--radius-xs);padding:10px;margin-bottom:6px;
+      display:flex;gap:10px;align-items:flex-start;
+    }
+    .today-dot{
+      width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;
+    }
+    .today-dot.overdue{background:var(--color-accent-red)}
+    .today-dot.call{background:var(--color-accent-yellow)}
+    .today-dot.viewing{background:var(--color-accent-blue)}
+    .today-dot.done{background:var(--color-accent-green)}
+    .today-info{flex:1;min-width:0}
+    .today-name{font-size:.74rem;font-weight:600;color:var(--color-text-on-dark);margin-bottom:1px}
+    .today-desc{font-size:.62rem;color:var(--color-text-on-dark-40);line-height:1.4}
+    .today-time{font-size:.58rem;color:var(--color-text-on-dark-40);flex-shrink:0;text-align:right}
+    .today-time b{display:block;color:var(--color-text-on-dark-60);font-size:.65rem}
+
+    .today-summary{
+      background:var(--color-accent-yellow-dim);border:1px solid rgba(239,169,67,0.2);
+      border-radius:var(--radius-xs);padding:10px;margin-bottom:12px;
+    }
+    .today-summary-title{font-size:.62rem;font-weight:600;color:var(--color-accent-yellow);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+    .today-summary-stats{display:flex;gap:12px}
+    .today-stat{text-align:center}
+    .today-stat-num{font-size:1.1rem;font-weight:600;color:var(--color-text-on-dark);line-height:1}
+    .today-stat-label{font-size:.5rem;color:var(--color-text-on-dark-40);margin-top:2px}
+
+    /* ===== REST OF PAGE — same styles ===== */
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+    .step{background:var(--color-surface-dark);border:1px solid var(--color-shell-stroke);border-radius:var(--radius-md);padding:32px 24px;transition:all .2s ease}
+    .step:hover{border-color:var(--color-shell-stroke-hover);transform:translateY(-2px)}
+    .step-n{font-size:2.5rem;font-weight:600;color:var(--color-text-on-dark-40);line-height:1;margin-bottom:16px;letter-spacing:-.04em}
+    .step p{font-size:.9rem}
+
+    .aha-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:40px}
+    .aha{background:var(--color-surface-dark);border:1px solid var(--color-shell-stroke);border-radius:var(--radius-md);padding:32px;position:relative;overflow:hidden}
+    .aha::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--color-accent-yellow)}
+    .aha-ic{width:48px;height:48px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+    .aha-ic svg{width:24px;height:24px}
+    .aha h3{font-size:1.05rem;margin-bottom:10px}
+
+    .vals{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:48px}
+    .val{padding:28px;border:1px solid var(--color-shell-stroke);border-radius:var(--radius-md);background:var(--color-shell-bg);transition:border-color .2s}
+    .val:hover{border-color:var(--color-accent-yellow)}
+    .val-ic{width:48px;height:48px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+    .val-ic svg{width:22px;height:22px}
+
+    .center{text-align:center}
+    .center p.sub{margin:0 auto 40px;font-size:1.05rem;max-width:520px}
+    .trigs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:920px;margin:0 auto}
+    .trig{padding:22px 18px;background:var(--color-shell-bg);border:1px solid var(--color-shell-stroke);border-radius:var(--radius-sm);text-align:left;transition:border-color .2s}
+    .trig:hover{border-color:var(--color-accent-red)}
+    .trig-l{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--color-accent-red);margin-bottom:6px}
+    .trig p{font-size:.88rem;font-style:italic;color:var(--color-text-on-dark-40)}
+
+    .cj{margin-bottom:56px}.cj:last-child{margin-bottom:0}
+    .cj-h{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+    .cj-n{width:40px;height:40px;border-radius:var(--radius-xs);background:var(--color-accent-yellow-dim);color:var(--color-accent-yellow);display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:600;flex-shrink:0}
+    .cj-h h3{font-size:1.25rem;margin-bottom:0}
+    .mj{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .mj li{padding:20px;background:var(--color-shell-bg);border:1px solid var(--color-shell-stroke);border-radius:var(--radius-sm);font-size:.9rem;color:var(--color-text-on-dark-60);line-height:1.55;transition:border-color .2s}
+    .mj li:hover{border-color:var(--color-accent-yellow)}
+    .mj li strong{color:var(--color-text-on-dark);display:block;margin-bottom:3px;font-weight:500}
+
+    .qt{margin:48px 0;padding:28px 32px;border-left:3px solid var(--color-accent-yellow);background:var(--color-accent-yellow-dim);border-radius:0 var(--radius-sm) var(--radius-sm) 0;max-width:620px}
+    .qt p{color:var(--color-text-on-dark);font-size:1.05rem;font-weight:500;margin-bottom:6px;max-width:none}
+    .qt cite{font-size:.8rem;color:var(--color-text-on-dark-40);font-style:normal}
+
+    .outs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:900px;margin:48px auto 0}
+    .out{padding:24px;border-radius:var(--radius-sm);background:var(--color-shell-bg);border:1px solid var(--color-shell-stroke)}
+    .out h3{color:var(--color-accent-yellow);font-size:1rem;margin-bottom:6px}
+    .out p{font-size:.85rem}
+
+    .dbts{max-width:700px;margin:48px auto 0}
+    .dbt{padding:26px 28px;background:var(--color-shell-bg);border:1px solid var(--color-shell-stroke);border-radius:var(--radius-sm);margin-bottom:10px;transition:border-color .2s}
+    .dbt:hover{border-color:var(--color-accent-yellow)}
+    .dbt h3{font-size:1.05rem;margin-bottom:8px}
+    .dbt p{font-size:.9rem;line-height:1.6;max-width:none}
+    .dbt p strong{color:var(--color-text-on-dark)}
+
+    .comps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+    .comp{padding:28px 22px;background:var(--color-shell-bg);border:1px solid var(--color-shell-stroke);border-radius:var(--radius-sm);position:relative;overflow:hidden}
+    .comp::after{content:'REPLACED';position:absolute;top:12px;right:-30px;background:var(--color-accent-yellow);color:var(--color-black);font-size:.58rem;font-weight:600;letter-spacing:.06em;padding:3px 32px;transform:rotate(45deg)}
+    .comp h3{font-size:.95rem;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--color-shell-stroke)}
+    .comp p{font-size:.85rem;line-height:1.6}
+
+    .fcta{text-align:center;padding:120px 0}
+    .fcta h2{font-size:clamp(2rem,4vw,3rem);margin-bottom:16px}
+    .fcta p{margin:0 auto 28px;font-size:1rem}
+
+    footer{padding:28px 0;border-top:1px solid var(--color-shell-stroke);text-align:center}
+    footer p{font-size:.78rem;color:var(--color-text-on-dark-40);margin:0 auto}
+
+    @media(max-width:1024px){
+      .hero-grid{grid-template-columns:1fr;gap:40px;text-align:center}
+      .hero p{margin-left:auto;margin-right:auto}
+      .hero-btns{justify-content:center}
+      .iphone{margin:0 auto}
+    }
+    @media(max-width:768px){
+      .container{padding:0 24px}
+      section{padding:72px 0}
+      .steps,.vals,.aha-grid,.trigs,.comps,.mj,.outs{grid-template-columns:1fr}
+      .hero-btns{flex-direction:column}
+      .hero-btns .btn{width:100%;justify-content:center}
+      .iphone{width:260px;height:540px;border-radius:42px}
+      .iphone::before{width:84px;height:24px;top:8px}
+      .iphone-screen{border-radius:39px}
+      .m-col{min-width:170px}
+    }
+  </style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="container">
+    <a href="/" class="nav-brand">Voice<span>Pipeline</span></a>
+    <a href="/app" class="btn btn-cta" style="padding:10px 22px;font-size:.82rem">Try Free</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-tag reveal">Voice-first pipeline for real estate</div>
+        <h1 class="reveal d1">Never lose a <span class="yellow">property deal</span> because you forgot to call back</h1>
+        <p class="reveal d2">Built for real estate agents who spend their days between viewings, not behind a desk. Track buyers, log property preferences, schedule follow-ups -- all by voice.</p>
+        <div class="hero-btns reveal d3">
+          <a href="/app" class="btn btn-cta">
+            <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+            Create your first lead by voice
+          </a>
+          <a href="#how" class="btn btn-ghost">See how it works</a>
+        </div>
+      </div>
+
+      <!-- iPhone mockup -->
+      <div class="reveal d2">
+        <div class="iphone">
+          <div class="iphone-screen">
+            <div class="status-bar">
+              <span class="time">9:41</span>
+              <div class="status-icons"><span>5G</span> <span>100%</span></div>
+            </div>
+
+            <div class="app-header">
+              <div class="app-title">Voice Pipeline</div>
+              <div class="app-mic"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></div>
+            </div>
+
+            <div class="app-tabs">
+              <div class="app-tab active" data-tab="pipeline">Pipeline</div>
+              <div class="app-tab" data-tab="today">Today</div>
+            </div>
+
+            <div class="app-content">
+              <!-- PIPELINE TAB -->
+              <div class="tab-panel active" id="tab-pipeline">
+                <div class="m-cols">
+                  <div class="m-col">
+                    <div class="m-col-head">New <span class="m-col-count">2</span></div>
+                    <div class="m-chip hi">
+                      <div class="mn">Anna K.</div>
+                      <span class="mt">2-bed Limassol</span>
+                      <div class="mm"><span>180K</span><span>Bazaraki</span></div>
+                    </div>
+                    <div class="m-chip">
+                      <div class="mn">Dmitri L.</div>
+                      <span class="mt">3-bed Limassol</span>
+                      <div class="mm"><span>320K</span><span>Referral</span></div>
+                    </div>
+                  </div>
+
+                  <div class="m-col">
+                    <div class="m-col-head">Contacted <span class="m-col-count">2</span></div>
+                    <div class="m-chip">
+                      <div class="mn">Costas M.</div>
+                      <span class="mt">Villa Paphos</span>
+                      <div class="mm"><span>350K</span><span>Mar 22</span></div>
+                    </div>
+                    <div class="m-chip">
+                      <div class="mn">Sarah B.</div>
+                      <span class="mt">Apt Larnaca</span>
+                      <div class="mm"><span>210K</span><span>Mar 23</span></div>
+                    </div>
+                  </div>
+
+                  <div class="m-col">
+                    <div class="m-col-head">Viewing <span class="m-col-count">3</span></div>
+                    <div class="m-chip od">
+                      <div class="mn">Maria P.</div>
+                      <span class="mt">3-bed Larnaca</span>
+                      <div class="mm"><span>250K</span><span style="color:var(--color-accent-red)">Overdue</span></div>
+                    </div>
+                    <div class="m-chip">
+                      <div class="mn">Yiannis A.</div>
+                      <span class="mt">Villa Protaras</span>
+                      <div class="mm"><span>480K</span><span>Today 10:00</span></div>
+                    </div>
+                    <div class="m-chip">
+                      <div class="mn">Olga K.</div>
+                      <span class="mt">2-bed Nicosia</span>
+                      <div class="mm"><span>165K</span><span>Tomorrow</span></div>
+                    </div>
+                  </div>
+
+                  <div class="m-col">
+                    <div class="m-col-head">Deal <span class="m-col-count">2</span></div>
+                    <div class="m-chip">
+                      <div class="mn">James W.</div>
+                      <span class="mt">Penthouse Limassol</span>
+                      <div class="mm"><span>520K</span><span>Offer sent</span></div>
+                    </div>
+                    <div class="m-chip">
+                      <div class="mn">Natalia R.</div>
+                      <span class="mt">1-bed Paphos</span>
+                      <div class="mm"><span>135K</span><span>Negotiating</span></div>
+                    </div>
+                  </div>
+
+                  <div class="m-col">
+                    <div class="m-col-head">Won <span class="m-col-count">1</span></div>
+                    <div class="m-chip won">
+                      <div class="mn">Alex D.</div>
+                      <span class="mt">Villa Limassol</span>
+                      <div class="mm"><span>680K</span><span style="color:var(--color-accent-green)">Signed</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="m-vbar">
+                  <div class="m-wav"><span></span><span></span><span></span><span></span><span></span></div>
+                  <span class="mvt">"Move <b>Maria</b> to deal -- she loved the sea-view..."</span>
+                </div>
+              </div>
+
+              <!-- TODAY TAB -->
+              <div class="tab-panel" id="tab-today">
+                <div class="today-summary">
+                  <div class="today-summary-title">Your day at a glance</div>
+                  <div class="today-summary-stats">
+                    <div class="today-stat"><div class="today-stat-num">3</div><div class="today-stat-label">Follow-ups</div></div>
+                    <div class="today-stat"><div class="today-stat-num">2</div><div class="today-stat-label">Viewings</div></div>
+                    <div class="today-stat"><div class="today-stat-num" style="color:var(--color-accent-red)">1</div><div class="today-stat-label">Overdue</div></div>
+                    <div class="today-stat"><div class="today-stat-num">12</div><div class="today-stat-label">Active</div></div>
+                  </div>
+                </div>
+
+                <div class="today-header"><span>Overdue</span><span class="today-date" style="color:var(--color-accent-red)">Needs attention</span></div>
+                <div class="today-item" style="border-left:3px solid var(--color-accent-red)">
+                  <div class="today-dot overdue"></div>
+                  <div class="today-info">
+                    <div class="today-name">Maria P.</div>
+                    <div class="today-desc">3-bed Larnaca, 250K. Last contact 2 days ago. Was thinking about the offer.</div>
+                  </div>
+                  <div class="today-time"><b>2d</b>ago</div>
+                </div>
+
+                <div class="today-header"><span>Follow-ups</span><span class="today-date">March 21</span></div>
+                <div class="today-item">
+                  <div class="today-dot call"></div>
+                  <div class="today-info">
+                    <div class="today-name">Anna K.</div>
+                    <div class="today-desc">Call about 2-bed apartment options in Limassol, budget 180K</div>
+                  </div>
+                  <div class="today-time"><b>10:00</b>AM</div>
+                </div>
+                <div class="today-item">
+                  <div class="today-dot call"></div>
+                  <div class="today-info">
+                    <div class="today-name">Costas M.</div>
+                    <div class="today-desc">Confirm villa viewing in Paphos, check if pool is required</div>
+                  </div>
+                  <div class="today-time"><b>11:30</b>AM</div>
+                </div>
+                <div class="today-item">
+                  <div class="today-dot call"></div>
+                  <div class="today-info">
+                    <div class="today-name">Dmitri L.</div>
+                    <div class="today-desc">First call, Limassol 3-bed, referred by Alex D.</div>
+                  </div>
+                  <div class="today-time"><b>2:00</b>PM</div>
+                </div>
+
+                <div class="today-header"><span>Viewings</span></div>
+                <div class="today-item">
+                  <div class="today-dot viewing"></div>
+                  <div class="today-info">
+                    <div class="today-name">Yiannis A.</div>
+                    <div class="today-desc">Villa Protaras, 480K. Sea-view, 4 beds, pool.</div>
+                  </div>
+                  <div class="today-time"><b>4:00</b>PM</div>
+                </div>
+                <div class="today-item">
+                  <div class="today-dot viewing"></div>
+                  <div class="today-info">
+                    <div class="today-name">Olga K.</div>
+                    <div class="today-desc">2-bed Nicosia center, 165K. Near Ledra Street.</div>
+                  </div>
+                  <div class="today-time"><b>6:00</b>PM</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="sec-alt">
+  <div class="container">
+    <span class="label reveal">How it works</span>
+    <h2 class="reveal">Three steps. Ten seconds. <span class="yellow">Pipeline updated.</span></h2>
+    <div class="steps">
+      <div class="step reveal d1"><div class="step-n">01</div><h3>Press the mic and talk</h3><p>"New lead Anna, came from Bazaraki, looking for a 2-bedroom apartment in Limassol, budget 180K"</p></div>
+      <div class="step reveal d2"><div class="step-n">02</div><h3>Confirm the action</h3><p>The assistant shows: "Create lead Anna, source Bazaraki, 2-bed apartment, Limassol, 180K?" You approve.</p></div>
+      <div class="step reveal d3"><div class="step-n">03</div><h3>Board updates instantly</h3><p>Lead card appears in "New" with property type, location, and budget saved. Ready for your first call.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- AHA -->
+<section>
+  <div class="container">
+    <span class="label reveal">Experience the difference</span>
+    <h2 class="reveal">The moment you realize you'll <span class="yellow">never go back</span> to typing</h2>
+    <div class="aha-grid">
+      <div class="aha reveal d1"><div class="aha-ic" style="background:var(--color-accent-yellow-dim)"><svg viewBox="0 0 24 24" fill="var(--color-accent-yellow)"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></div><h3>Update a lead while driving to a viewing</h3><p>Dictate "Costas wants a villa with a pool near the beach, budget up to 400K, viewing on Friday at 10." One sentence updates status, note, property preferences, and follow-up.</p></div>
+      <div class="aha reveal d2"><div class="aha-ic" style="background:var(--color-accent-blue-dim)"><svg viewBox="0 0 24 24" fill="var(--color-accent-blue)"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-1 16.95h2V19.5h-2v2.95zm-7.45-3.91l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8z"/></svg></div><h3>Open your day with a clear property plan</h3><p>Tomorrow morning: 2 buyer follow-ups, 1 viewing at a seaside apartment in Limassol, 1 overdue lead from last week's open house. No chaos -- just a clear action list.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES -->
+<section class="sec-alt">
+  <div class="container">
+    <span class="label reveal">What you get</span>
+    <h2 class="reveal">Built for agents who sell properties, <span class="yellow">not fill forms</span></h2>
+    <div class="vals">
+      <div class="val reveal d1"><div class="val-ic" style="background:var(--color-accent-yellow-dim)"><svg viewBox="0 0 24 24" fill="var(--color-accent-yellow)"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></div><h3>Zero forgotten follow-ups</h3><p>Morning reminder: who to call about their apartment search, which viewing to confirm, which buyer went silent. No property deals lost to forgetfulness.</p></div>
+      <div class="val reveal d2"><div class="val-ic" style="background:var(--color-accent-yellow-dim)"><svg viewBox="0 0 24 24" fill="var(--color-accent-yellow)"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></div><h3>Lead updates in 10 seconds</h3><p>Between property viewings, after a buyer call, walking out of an open house -- dictate your update and keep moving. No laptop, no CRM forms.</p></div>
+      <div class="val reveal d3"><div class="val-ic" style="background:var(--color-accent-blue-dim)"><svg viewBox="0 0 24 24" fill="var(--color-accent-blue)"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zM6 20V4h5v7h7v9H6z"/></svg></div><h3>Full buyer history in 5 seconds</h3><p>Buyer calls back: "What apartments did you find?" Open their card -- budget, preferred area, property type, notes from every call and viewing.</p></div>
+      <div class="val reveal d4"><div class="val-ic" style="background:var(--color-accent-blue-dim)"><svg viewBox="0 0 24 24" fill="var(--color-accent-blue)"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg></div><h3>A clear plan every morning</h3><p>Which buyers to call, which properties to show, which leads are overdue. Start focused on selling, not remembering.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAMILIAR -->
+<section class="center">
+  <div class="container">
+    <span class="label reveal">Sound familiar?</span>
+    <h2 class="reveal">You want to close more <span class="yellow">property deals</span><br>without dropping the ball</h2>
+    <p class="sub reveal">You want to grow your real estate business without hiring an assistant. Any of these ring a bell?</p>
+    <div class="trigs">
+      <div class="trig reveal d1"><div class="trig-l">Lost deal</div><p>"I lost a buyer last month because I forgot to follow up after the viewing."</p></div>
+      <div class="trig reveal d2"><div class="trig-l">Lost context</div><p>"A client called and I couldn't remember -- apartment or villa? Limassol or Larnaca?"</p></div>
+      <div class="trig reveal d3"><div class="trig-l">Won't scale</div><p>"I track all my buyers in WhatsApp and my head, and it doesn't scale past 20 leads."</p></div>
+      <div class="trig reveal d1"><div class="trig-l">Guilt</div><p>"A buyer said: I haven't heard from you in two weeks. I lost a 300K property deal."</p></div>
+      <div class="trig reveal d2"><div class="trig-l">CRM fatigue</div><p>"I tried Qobrix, iList, Command -- stopped filling them after a week. Too many fields."</p></div>
+      <div class="trig reveal d3"><div class="trig-l">Leaving money</div><p>"I know I'm losing commissions because I'm disorganized, but there's no time for admin."</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CORE JOBS -->
+<section class="sec-alt" id="features">
+  <div class="container">
+    <span class="label reveal">How it works in practice</span>
+    <h2 class="reveal">Your voice runs the <span class="yellow">whole property pipeline</span></h2>
+    <div class="qt reveal"><p>"If I solve the organization problem, I'll be 50-70% more productive."</p><cite>Real Estate Agent, Keller Williams Cyprus</cite></div>
+    <div class="cj reveal"><div class="cj-h"><div class="cj-n">1</div><h3>Capture lead updates instantly -- by voice</h3></div><ul class="mj"><li><strong>Just finished a property viewing?</strong>Press mic: "Costas loved the sea-view apartment on Makarios Ave, wants to offer 320K, call him Monday." Status, note, follow-up -- one sentence.</li><li><strong>Driving to the next showing?</strong>"Maria called, raised her budget to 250K, wants 3-bedrooms in Limassol near the seafront." Pipeline updates while you drive.</li><li><strong>Walking out of an open house?</strong>"New lead James, interested in the villa on Coral Bay Road, budget 500K, schedule viewing Thursday." Card created instantly.</li><li><strong>Got a Bazaraki inquiry?</strong>"New lead Anna, Bazaraki, looking for a 2-bedroom apartment in Larnaca, budget 180K, rental." All details captured.</li></ul></div>
+    <div class="cj reveal"><div class="cj-h"><div class="cj-n">2</div><h3>Know your property day every morning</h3></div><ul class="mj"><li><strong>Open the app at 8 AM</strong>Today View: 3 buyer follow-ups, 1 apartment viewing at 10 AM, 1 lead overdue since the weekend open house.</li><li><strong>Get a morning summary</strong>WhatsApp message: "3 follow-ups today: Anna (apartment call), Costas (villa viewing at 2 PM), Maria (overdue 2 days)."</li><li><strong>Tap any buyer</strong>Go straight to their card with full context: budget, preferred area, property type, every note from every interaction.</li></ul></div>
+    <div class="cj reveal"><div class="cj-h"><div class="cj-n">3</div><h3>Restore buyer context in 5 seconds</h3></div><ul class="mj"><li><strong>Buyer calls back after a week?</strong>Open their card: looking for 2-bed in Limassol, budget 250K, liked Makarios Ave apartment but wants sea view, rejected Anexartisias for noise.</li><li><strong>Preparing for a property showing?</strong>Check the lead: budget 350K, wants villa with pool, saw 2 houses in Paphos, rejected both for small gardens.</li><li><strong>Seller asks about buyer interest?</strong>Show pipeline: 3 active buyers for this price range, 1 viewing scheduled, 1 offer pending. Everything documented.</li></ul></div>
+  </div>
+</section>
+
+<!-- OUTCOMES -->
+<section>
+  <div class="container center">
+    <span class="label reveal">Where this takes you</span>
+    <h2 class="reveal">From chaotic notebook to <span class="yellow">professional pipeline</span></h2>
+    <div class="outs">
+      <div class="out reveal d1"><h3>Confident</h3><p>No buyer slipping through. Every property inquiry tracked, every viewing follow-up scheduled.</p></div>
+      <div class="out reveal d2"><h3>Calm</h3><p>No morning chaos. A clear daily plan with every buyer and property laid out.</p></div>
+      <div class="out reveal d3"><h3>Professional</h3><p>Buyer calls and you instantly recall their budget, preferred area, and the apartment they liked.</p></div>
+      <div class="out reveal d1"><h3>More deals closed</h3><p>No follow-up forgotten means no commission lost. Every lead nurtured to signed contract.</p></div>
+      <div class="out reveal d2"><h3>Business growing</h3><p>Handle 30+ active buyers without an assistant, without burnout, without complex CRM.</p></div>
+      <div class="out reveal d3"><h3>Reputation built</h3><p>The agent who always calls back, always remembers, always has the right property ready.</p></div>
+    </div>
+    <div class="qt reveal" style="margin:56px auto 0;text-align:left"><p>"I'd rather have a working assistant that is not integrated, than nothing at all."</p><cite>Real Estate Agent, Keller Williams Cyprus</cite></div>
+  </div>
+</section>
+
+<!-- DOUBTS -->
+<section class="sec-alt">
+  <div class="container center">
+    <span class="label reveal">Have doubts?</span>
+    <h2 class="reveal">We've heard these from other agents</h2>
+    <div class="dbts" style="text-align:left">
+      <div class="dbt reveal"><h3>"I don't have time to learn new software."</h3><p>There's nothing to learn. Press the mic, talk like you'd tell a colleague about a buyer. <strong>One agent started using it with zero onboarding</strong> -- 100% of her leads were updated from day one.</p></div>
+      <div class="dbt reveal d1"><h3>"I've tried CRMs before -- too many fields."</h3><p>This is not a CRM. No property forms, no dropdowns, no mandatory fields. <strong>A board with 6 columns and a microphone.</strong> Say what happened -- the board handles the rest.</p></div>
+      <div class="dbt reveal d2"><h3>"What if it misunderstands my voice?"</h3><p>Every command shows a confirmation: <strong>"Did I get this right: move Maria to Viewing, note about tomorrow's apartment showing?"</strong> You approve or reject. Nothing changes without your OK.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPETITORS -->
+<section>
+  <div class="container">
+    <span class="label reveal">Time to upgrade</span>
+    <h2 class="reveal">Replace your current <span class="yellow">"system"</span></h2>
+    <div class="comps">
+      <div class="comp reveal d1"><h3>Your notebook &amp; memory</h3><p>You keep buyers in your head. How many property deals did you lose because you forgot to call back after a viewing? Your memory doesn't send reminders. Your notebook doesn't flag overdue leads.</p></div>
+      <div class="comp reveal d2"><h3>WhatsApp chats</h3><p>You scroll through 50 buyer chats to find Maria's budget. Was it 200K or 250K? Limassol or Larnaca? Every buyer gets one card with full property search history. No scrolling, no guessing.</p></div>
+      <div class="comp reveal d3"><h3>Traditional CRM</h3><p>Open Qobrix, find the contact, fill 8 fields, click save. That's why you stopped after a week. Voice Pipeline takes 10 seconds and one spoken sentence. The data enters itself.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="fcta sec-alt" id="cta">
+  <div class="container">
+    <h2 class="reveal">Stop losing property deals.<br><span class="yellow">Start talking.</span></h2>
+    <p class="reveal d1">Create your first buyer lead in 10 seconds. No signup forms, no onboarding, no credit card.</p>
+    <div class="reveal d2">
+      <a href="/" class="btn btn-cta" style="font-size:1rem;padding:16px 40px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:var(--color-black)"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+        Try Voice Pipeline Free
+      </a>
+    </div>
+    <p class="reveal d3" style="margin-top:14px;font-size:.8rem;color:var(--color-text-on-dark-40)">Free for 14 days. No credit card required.</p>
+  </div>
+</section>
+
+<footer><div class="container"><p>Voice Pipeline -- Built for real estate agents who'd rather close deals than fill CRM fields.</p></div></footer>
+
+<script>
+// Scroll reveal
+const o=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('vis')})},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>o.observe(el));
+
+// Nav scroll
+const n=document.getElementById('nav');
+window.addEventListener('scroll',()=>n.classList.toggle('scrolled',window.scrollY>50));
+
+// Tab switching
+document.querySelectorAll('.app-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.app-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
