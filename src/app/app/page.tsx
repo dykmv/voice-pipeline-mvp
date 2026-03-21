@@ -69,7 +69,7 @@ export default function PipelinePage() {
         </div>
 
         {showForm && (
-          <div className="mb-4 rounded-xl border border-border bg-card p-4">
+          <div className="mb-4 max-w-md rounded-xl border border-border bg-card p-4">
             <LeadForm
               onSubmit={handleCreateLead}
               onClose={() => setShowForm(false)}

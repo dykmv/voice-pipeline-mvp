@@ -1,8 +1,10 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutGrid, CalendarCheck, Mic } from "lucide-react"
+import { useSession, signOut } from "next-auth/react"
+import { LayoutGrid, CalendarCheck, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navItems = [
@@ -10,8 +12,19 @@ const navItems = [
   { href: "/today", label: "Today", icon: CalendarCheck },
 ]
 
-export function Navigation({ onMicClick }: { onMicClick?: () => void }) {
+export function Navigation() {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const [showMenu, setShowMenu] = useState(false)
+
+  const initials = session?.user?.name
+    ? session.user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : session?.user?.email?.[0]?.toUpperCase() || "?"
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-md md:static md:border-b md:border-t-0">
@@ -45,14 +58,38 @@ export function Navigation({ onMicClick }: { onMicClick?: () => void }) {
           })}
         </div>
 
-        {/* Mic button */}
-        {onMicClick && (
-          <button
-            onClick={onMicClick}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_0_20px_rgba(239,169,67,0.25)] transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(239,169,67,0.35)] active:scale-95"
-          >
-            <Mic className="h-5 w-5" />
-          </button>
+        {/* Avatar + menu */}
+        {session?.user && (
+          <div className="relative">
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary transition-colors hover:bg-primary/25"
+            >
+              {initials}
+            </button>
+
+            {showMenu && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowMenu(false)}
+                />
+                <div className="absolute bottom-12 right-0 z-50 min-w-[180px] rounded-lg border border-border bg-card p-1 shadow-lg md:bottom-auto md:top-10">
+                  <div className="px-3 py-2 text-xs text-muted-foreground">
+                    {session.user.email}
+                  </div>
+                  <div className="my-1 h-px bg-border" />
+                  <button
+                    onClick={() => signOut({ callbackUrl: "/login" })}
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
+                    Sign out
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         )}
       </div>
     </nav>
