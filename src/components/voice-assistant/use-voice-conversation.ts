@@ -97,7 +97,7 @@ export function useVoiceConversation(leadContext?: LeadContext) {
       if (silenceTimer) clearTimeout(silenceTimer)
       silenceTimer = setTimeout(() => {
         recognition.stop()
-      }, 3000)
+      }, 5000)
     }
 
     recognition.onerror = () => {

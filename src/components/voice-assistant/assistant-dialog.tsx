@@ -116,17 +116,17 @@ export function AssistantDialog({ onActionApplied, leadContext }: AssistantDialo
         </div>
       )}
 
-      {/* Full-screen modal overlay */}
+      {/* Dialog overlay — bottom sheet on mobile, centered on desktop */}
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center">
+        <div className="fixed inset-0 z-[100] flex items-end md:items-center md:justify-center">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={handleClose}
           />
 
-          {/* Dialog */}
-          <div className="relative z-10 mx-4 flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-[0_0_60px_rgba(239,169,67,0.12)] md:max-w-lg" style={{ maxHeight: "80vh" }}>
+          {/* Dialog — full-width bottom sheet on mobile, centered card on desktop */}
+          <div className="relative z-10 flex w-full flex-col overflow-hidden rounded-t-2xl border-t border-primary/20 bg-card shadow-[0_0_60px_rgba(239,169,67,0.12)] md:mx-4 md:max-w-lg md:rounded-2xl md:border" style={{ maxHeight: "92vh" }}>
             {/* Header */}
             <div className="flex shrink-0 items-center justify-between border-b border-border px-5 py-4">
               <div className="flex items-center gap-3">

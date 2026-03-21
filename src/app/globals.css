@@ -72,4 +72,8 @@
   html {
     @apply font-sans;
   }
+  /* Prevent iOS auto-zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
 }
