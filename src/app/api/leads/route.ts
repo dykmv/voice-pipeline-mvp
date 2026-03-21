@@ -1,10 +1,12 @@
 import { prisma } from "@/lib/db"
+import { getUserId } from "@/lib/get-user"
 import { NextRequest, NextResponse } from "next/server"
 
 // GET /api/leads — fetch all leads with latest note
 export async function GET() {
+  const userId = await getUserId()
   const leads = await prisma.lead.findMany({
-    where: { userId: "default-user" },
+    where: { userId },
     include: {
       notes: {
         orderBy: { createdAt: "desc" },
@@ -21,9 +23,10 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const body = await req.json()
 
+  const userId = await getUserId()
   const lead = await prisma.lead.create({
     data: {
-      userId: "default-user",
+      userId,
       name: body.name,
       phone: body.phone || "",
       email: body.email || "",

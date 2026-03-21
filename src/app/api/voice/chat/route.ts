@@ -1,5 +1,6 @@
 import OpenAI from "openai"
 import { prisma } from "@/lib/db"
+import { getUserId } from "@/lib/get-user"
 import { NextRequest, NextResponse } from "next/server"
 
 const openai = new OpenAI()
@@ -99,6 +100,7 @@ Today: ${today}`
 }
 
 export async function POST(req: NextRequest) {
+  const userId = await getUserId()
   const body = await req.json()
   const { messages, leadContext } = body as {
     messages: Array<{ role: "user" | "assistant"; content: string }>
@@ -122,7 +124,7 @@ export async function POST(req: NextRequest) {
 
   // Get existing lead names
   const leads = await prisma.lead.findMany({
-    where: { userId: "default-user" },
+    where: { userId },
     select: { name: true },
   })
   const leadNames = leads.map((l) => l.name)

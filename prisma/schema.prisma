@@ -8,25 +8,47 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String   @default("")
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  sessions Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([token])
+  @@index([userId])
+}
+
 model Lead {
-  id            String   @id @default(cuid())
-  userId        String   @default("default-user")
-  name          String
-  phone         String   @default("")
-  email         String   @default("")
-  source        String   @default("")
-  budget        String   @default("")
-  propertyType  String   @default("")
-  location      String   @default("")
-  status          String   @default("new")
+  id              String    @id @default(cuid())
+  userId          String
+  name            String
+  phone           String    @default("")
+  email           String    @default("")
+  source          String    @default("")
+  budget          String    @default("")
+  propertyType    String    @default("")
+  location        String    @default("")
+  status          String    @default("new")
   followUpDate    DateTime?
-  transactionType String   @default("")      // sale|rent|auction
-  leadRole        String   @default("")      // buyer|tenant|seller|landlord
-  nextAction      String   @default("")      // what to do at follow-up
+  transactionType String    @default("")
+  leadRole        String    @default("")
+  nextAction      String    @default("")
   viewingDate     DateTime?
-  refNumber       String   @default("")      // property reference
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  refNumber       String    @default("")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   notes Note[]
 
