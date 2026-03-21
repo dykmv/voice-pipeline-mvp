@@ -77,7 +77,7 @@ export function AssistantDialog({ onActionApplied, leadContext }: AssistantDialo
     <>
       {/* Sticky input bar — always visible at bottom center */}
       {!isOpen && (
-        <div className="fixed bottom-16 left-0 right-0 z-50 px-4 md:bottom-4">
+        <div className="fixed bottom-20 left-0 right-0 z-50 px-4 md:bottom-6">
           <div className="mx-auto flex max-w-lg items-center gap-2 rounded-2xl border border-border bg-card/95 px-3 py-2 shadow-[0_4px_32px_rgba(0,0,0,0.4)] backdrop-blur-md">
             <input
               value={textInput}
