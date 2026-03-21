@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { AssistantDialog } from "@/components/voice-assistant/assistant-dialog"
-import { PIPELINE_STATUSES, LEAD_SOURCES, PROPERTY_TYPES } from "@/lib/types"
+import { PIPELINE_STATUSES, LEAD_SOURCES, PROPERTY_TYPES, TRANSACTION_TYPES, LEAD_ROLES } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import type { LeadWithNotes } from "@/lib/types"
 
@@ -130,6 +130,10 @@ export default function LeadDetailPage() {
                     budget: lead.budget,
                     propertyType: lead.propertyType,
                     location: lead.location,
+                    transactionType: lead.transactionType,
+                    leadRole: lead.leadRole,
+                    nextAction: lead.nextAction,
+                    refNumber: lead.refNumber,
                   })
                 }}
               >
@@ -209,6 +213,32 @@ export default function LeadDetailPage() {
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-2">
+                <select
+                  value={editData.transactionType || ""}
+                  onChange={(e) =>
+                    setEditData((d) => ({ ...d, transactionType: e.target.value }))
+                  }
+                  className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                >
+                  <option value="">Transaction type</option>
+                  {TRANSACTION_TYPES.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+                <select
+                  value={editData.leadRole || ""}
+                  onChange={(e) =>
+                    setEditData((d) => ({ ...d, leadRole: e.target.value }))
+                  }
+                  className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                >
+                  <option value="">Client role</option>
+                  {LEAD_ROLES.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
                 <Input
                   value={editData.budget || ""}
                   onChange={(e) =>
@@ -224,6 +254,20 @@ export default function LeadDetailPage() {
                   placeholder="Location"
                 />
               </div>
+              <Input
+                value={editData.nextAction || ""}
+                onChange={(e) =>
+                  setEditData((d) => ({ ...d, nextAction: e.target.value }))
+                }
+                placeholder="Next action (e.g. send listings, confirm viewing)"
+              />
+              <Input
+                value={editData.refNumber || ""}
+                onChange={(e) =>
+                  setEditData((d) => ({ ...d, refNumber: e.target.value }))
+                }
+                placeholder="Property ref (e.g. D-4195)"
+              />
               <div className="flex gap-2 pt-1">
                 <Button onClick={handleEdit} size="sm" className="flex-1">Save</Button>
                 <Button
@@ -272,6 +316,26 @@ export default function LeadDetailPage() {
               {lead.source && (
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   Source: {lead.source}
+                </div>
+              )}
+              {lead.transactionType && (
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  Type: {lead.transactionType}
+                </div>
+              )}
+              {lead.leadRole && (
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  Role: {lead.leadRole}
+                </div>
+              )}
+              {lead.nextAction && (
+                <div className="col-span-2 flex items-center gap-1.5 text-primary">
+                  Next: {lead.nextAction}
+                </div>
+              )}
+              {lead.refNumber && (
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  Ref: {lead.refNumber}
                 </div>
               )}
             </div>
@@ -403,6 +467,9 @@ export default function LeadDetailPage() {
           leadBudget: lead.budget,
           leadPropertyType: lead.propertyType,
           leadLocation: lead.location,
+          leadTransactionType: lead.transactionType,
+          leadRole: lead.leadRole,
+          leadNextAction: lead.nextAction,
         }}
       />
     </div>

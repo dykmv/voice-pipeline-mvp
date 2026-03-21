@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
-import { LEAD_SOURCES, PROPERTY_TYPES } from "@/lib/types"
+import { LEAD_SOURCES, PROPERTY_TYPES, TRANSACTION_TYPES, LEAD_ROLES } from "@/lib/types"
 import { X } from "lucide-react"
 
 interface LeadFormProps {
@@ -20,6 +20,9 @@ export function LeadForm({ onSubmit, onClose }: LeadFormProps) {
     budget: "",
     propertyType: "",
     location: "",
+    transactionType: "",
+    leadRole: "",
+    refNumber: "",
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -88,6 +91,29 @@ export function LeadForm({ onSubmit, onClose }: LeadFormProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-2">
+        <select
+          value={form.transactionType}
+          onChange={(e) => update("transactionType", e.target.value)}
+          className="h-9 rounded-md border border-input bg-transparent px-3 text-sm text-foreground"
+        >
+          <option value="">Transaction type</option>
+          {TRANSACTION_TYPES.map((t) => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
+        <select
+          value={form.leadRole}
+          onChange={(e) => update("leadRole", e.target.value)}
+          className="h-9 rounded-md border border-input bg-transparent px-3 text-sm text-foreground"
+        >
+          <option value="">Client role</option>
+          {LEAD_ROLES.map((r) => (
+            <option key={r} value={r}>{r}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
         <Input
           placeholder="Budget"
           value={form.budget}
@@ -99,6 +125,12 @@ export function LeadForm({ onSubmit, onClose }: LeadFormProps) {
           onChange={(e) => update("location", e.target.value)}
         />
       </div>
+
+      <Input
+        placeholder="Property ref (e.g. D-4195)"
+        value={form.refNumber}
+        onChange={(e) => update("refNumber", e.target.value)}
+      />
 
       <div className="flex gap-2 pt-1">
         <Button type="submit" className="flex-1">

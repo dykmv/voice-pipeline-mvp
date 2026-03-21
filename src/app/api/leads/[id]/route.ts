@@ -57,6 +57,13 @@ export async function PATCH(
   if (body.followUpDate !== undefined) {
     updateData.followUpDate = body.followUpDate ? new Date(body.followUpDate) : null
   }
+  if (body.transactionType !== undefined) updateData.transactionType = body.transactionType
+  if (body.leadRole !== undefined) updateData.leadRole = body.leadRole
+  if (body.nextAction !== undefined) updateData.nextAction = body.nextAction
+  if (body.viewingDate !== undefined) {
+    updateData.viewingDate = body.viewingDate ? new Date(body.viewingDate) : null
+  }
+  if (body.refNumber !== undefined) updateData.refNumber = body.refNumber
 
   const lead = await prisma.lead.update({
     where: { id },

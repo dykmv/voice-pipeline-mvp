@@ -26,6 +26,11 @@ export type PendingAction = {
   newStatus?: string
   note?: string
   followUpDate?: string
+  transactionType?: string
+  leadRole?: string
+  nextAction?: string
+  viewingDate?: string
+  refNumber?: string
   summary: string
   readyToApply: boolean
   searchQuery?: string

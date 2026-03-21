@@ -16,6 +16,9 @@ export interface LeadContext {
   leadBudget?: string
   leadPropertyType?: string
   leadLocation?: string
+  leadTransactionType?: string
+  leadRole?: string
+  leadNextAction?: string
 }
 
 export function useVoiceConversation(leadContext?: LeadContext) {
@@ -170,6 +173,11 @@ export function useVoiceConversation(leadContext?: LeadContext) {
             status: action.newStatus || "new",
             note: action.note || "",
             followUpDate: action.followUpDate || null,
+            transactionType: action.transactionType || "",
+            leadRole: action.leadRole || "",
+            nextAction: action.nextAction || "",
+            viewingDate: action.viewingDate || null,
+            refNumber: action.refNumber || "",
           }),
         })
         if (!res.ok) throw new Error("Failed to create lead")
@@ -200,6 +208,11 @@ export function useVoiceConversation(leadContext?: LeadContext) {
             patchData.propertyType = action.leadPropertyType
           if (action.leadLocation) patchData.location = action.leadLocation
           if (action.leadPhone) patchData.phone = action.leadPhone
+          if (action.transactionType) patchData.transactionType = action.transactionType
+          if (action.leadRole) patchData.leadRole = action.leadRole
+          if (action.nextAction) patchData.nextAction = action.nextAction
+          if (action.viewingDate) patchData.viewingDate = action.viewingDate
+          if (action.refNumber) patchData.refNumber = action.refNumber
 
           if (Object.keys(patchData).length > 0) {
             await fetch(`/api/leads/${leadId}`, {

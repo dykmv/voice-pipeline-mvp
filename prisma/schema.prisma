@@ -18,16 +18,22 @@ model Lead {
   budget        String   @default("")
   propertyType  String   @default("")
   location      String   @default("")
-  status        String   @default("new")
-  followUpDate  DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  status          String   @default("new")
+  followUpDate    DateTime?
+  transactionType String   @default("")      // sale|rent|auction
+  leadRole        String   @default("")      // buyer|tenant|seller|landlord
+  nextAction      String   @default("")      // what to do at follow-up
+  viewingDate     DateTime?
+  refNumber       String   @default("")      // property reference
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   notes Note[]
 
   @@index([userId])
   @@index([status])
   @@index([followUpDate])
+  @@index([viewingDate])
 }
 
 model Note {

@@ -10,6 +10,11 @@ import {
   Calendar,
   FileText,
   Globe,
+  Tag,
+  UserCheck,
+  ClipboardList,
+  Eye,
+  Hash,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { PendingAction } from "./conversation-reducer"
@@ -33,6 +38,11 @@ export function ActionPreviewCard({
     { icon: Building, label: "Property", value: action.leadPropertyType },
     { icon: MapPin, label: "Location", value: action.leadLocation },
     { icon: ArrowRight, label: "Status", value: action.newStatus },
+    { icon: Tag, label: "Type", value: action.transactionType },
+    { icon: UserCheck, label: "Role", value: action.leadRole },
+    { icon: ClipboardList, label: "Next action", value: action.nextAction },
+    { icon: Eye, label: "Viewing", value: action.viewingDate },
+    { icon: Hash, label: "Ref", value: action.refNumber },
     { icon: Calendar, label: "Follow-up", value: action.followUpDate },
     { icon: FileText, label: "Note", value: action.note },
   ].filter((f) => f.value)

@@ -62,6 +62,11 @@ ACTION BLOCK — include at END of message when ready:
   "newStatus": "string or empty",
   "note": "string or empty",
   "followUpDate": "ISO date string or empty",
+  "transactionType": "Sale|Rent|Auction or empty",
+  "leadRole": "Buyer|Tenant|Seller|Landlord or empty",
+  "nextAction": "what to do at follow-up (e.g. 'send listings', 'confirm viewing', 'call back') or empty",
+  "viewingDate": "ISO datetime for scheduled viewing or empty",
+  "refNumber": "property reference number or empty",
   "summary": "one-line summary",
   "readyToApply": true,
   "searchQuery": "search term (for search only)"
@@ -100,6 +105,9 @@ export async function POST(req: NextRequest) {
       leadBudget?: string
       leadPropertyType?: string
       leadLocation?: string
+      leadTransactionType?: string
+      leadRole?: string
+      leadNextAction?: string
     } | null
   }
 
@@ -116,7 +124,7 @@ export async function POST(req: NextRequest) {
 
   // Build lead context block
   const leadContextBlock = leadContext
-    ? `\nCURRENT LEAD CONTEXT — user is viewing this lead:\nName: ${leadContext.leadName} | Status: ${leadContext.leadStatus} | Phone: ${leadContext.leadPhone || "—"} | Budget: ${leadContext.leadBudget || "—"} | Property: ${leadContext.leadPropertyType || "—"} | Location: ${leadContext.leadLocation || "—"}\nIf user says "add note", "move to viewing" etc. without a name, it's about THIS lead.\n`
+    ? `\nCURRENT LEAD CONTEXT — user is viewing this lead:\nName: ${leadContext.leadName} | Status: ${leadContext.leadStatus} | Phone: ${leadContext.leadPhone || "—"} | Budget: ${leadContext.leadBudget || "—"} | Property: ${leadContext.leadPropertyType || "—"} | Location: ${leadContext.leadLocation || "—"} | Type: ${leadContext.leadTransactionType || "—"} | Role: ${leadContext.leadRole || "—"} | Next action: ${leadContext.leadNextAction || "—"}\nIf user says "add note", "move to viewing" etc. without a name, it's about THIS lead.\n`
     : ""
 
   const systemPrompt = buildSystemPrompt(leadNames, leadContextBlock)
@@ -178,7 +186,7 @@ export async function POST(req: NextRequest) {
         const leadDetails = matchedLeads
           .map(
             (l) =>
-              `• ${l.name} — Status: ${l.status} | Phone: ${l.phone || "—"} | Budget: ${l.budget || "—"} | Property: ${l.propertyType || "—"} ${l.location || ""} | Follow-up: ${l.followUpDate ? new Date(l.followUpDate).toLocaleDateString() : "none"} | Last note: "${l.notes[0]?.text || "none"}"`
+              `• ${l.name} — Status: ${l.status} | Phone: ${l.phone || "—"} | Budget: ${l.budget || "—"} | Property: ${l.propertyType || "—"} ${l.location || ""} | Type: ${l.transactionType || "—"} | Role: ${l.leadRole || "—"} | Next action: ${l.nextAction || "—"} | Follow-up: ${l.followUpDate ? new Date(l.followUpDate).toLocaleDateString() : "none"} | Viewing: ${l.viewingDate ? new Date(l.viewingDate).toLocaleString() : "none"} | Ref: ${l.refNumber || "—"} | Last note: "${l.notes[0]?.text || "none"}"`
           )
           .join("\n")
 

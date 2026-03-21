@@ -33,6 +33,11 @@ export async function POST(req: NextRequest) {
       location: body.location || "",
       status: body.status || "new",
       followUpDate: body.followUpDate ? new Date(body.followUpDate) : null,
+      transactionType: body.transactionType || "",
+      leadRole: body.leadRole || "",
+      nextAction: body.nextAction || "",
+      viewingDate: body.viewingDate ? new Date(body.viewingDate) : null,
+      refNumber: body.refNumber || "",
     },
     include: { notes: true },
   })

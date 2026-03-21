@@ -25,6 +25,19 @@ export const PROPERTY_TYPES = [
   "Land",
 ] as const
 
+export const TRANSACTION_TYPES = [
+  "Sale",
+  "Rent",
+  "Auction",
+] as const
+
+export const LEAD_ROLES = [
+  "Buyer",
+  "Tenant",
+  "Seller",
+  "Landlord",
+] as const
+
 export interface LeadWithNotes {
   id: string
   userId: string
@@ -37,6 +50,11 @@ export interface LeadWithNotes {
   location: string
   status: string
   followUpDate: string | null
+  transactionType: string
+  leadRole: string
+  nextAction: string
+  viewingDate: string | null
+  refNumber: string
   createdAt: string
   updatedAt: string
   notes: NoteData[]
@@ -61,5 +79,10 @@ export interface VoiceAction {
   newStatus?: string
   note?: string
   followUpDate?: string
+  transactionType?: string
+  leadRole?: string
+  nextAction?: string
+  viewingDate?: string
+  refNumber?: string
   summary: string // Human-readable description for confirmation
 }

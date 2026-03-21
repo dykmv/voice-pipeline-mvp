@@ -15,6 +15,9 @@ interface LeadCardProps {
   propertyType: string
   location: string
   followUpDate: string | null
+  transactionType?: string
+  leadRole?: string
+  nextAction?: string
   lastNote?: string
   isDragging?: boolean
 }
@@ -50,6 +53,9 @@ export function LeadCard({
   propertyType,
   location,
   followUpDate,
+  transactionType,
+  leadRole,
+  nextAction,
   lastNote,
   isDragging,
 }: LeadCardProps) {
@@ -104,6 +110,22 @@ export function LeadCard({
           </span>
         )}
       </div>
+
+      {/* Transaction type + role */}
+      {(transactionType || leadRole) && (
+        <div className="mb-1 flex flex-wrap gap-1 pl-5">
+          {transactionType && (
+            <Badge variant="secondary" className="bg-[rgba(239,169,67,0.12)] text-[#EFA943] text-[10px] px-1.5 py-0 h-4">
+              {transactionType}
+            </Badge>
+          )}
+          {leadRole && (
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">
+              {leadRole}
+            </Badge>
+          )}
+        </div>
+      )}
 
       {/* Property tag */}
       {(propertyType || location) && (

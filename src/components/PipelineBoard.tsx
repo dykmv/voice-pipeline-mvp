@@ -104,6 +104,9 @@ export function PipelineBoard({ leads, onStatusChange }: PipelineBoardProps) {
                     propertyType={lead.propertyType}
                     location={lead.location}
                     followUpDate={lead.followUpDate}
+                    transactionType={lead.transactionType}
+                    leadRole={lead.leadRole}
+                    nextAction={lead.nextAction}
                     lastNote={lead.notes[0]?.text}
                     isDragging={activeId === lead.id}
                   />
@@ -125,6 +128,9 @@ export function PipelineBoard({ leads, onStatusChange }: PipelineBoardProps) {
                 propertyType={activeLead.propertyType}
                 location={activeLead.location}
                 followUpDate={activeLead.followUpDate}
+                transactionType={activeLead.transactionType}
+                leadRole={activeLead.leadRole}
+                nextAction={activeLead.nextAction}
                 lastNote={activeLead.notes[0]?.text}
                 isDragging
               />
