@@ -17,6 +17,7 @@ import {
   Hash,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { formatBudget } from "@/lib/utils"
 import type { PendingAction } from "./conversation-reducer"
 
 interface ActionPreviewCardProps {
@@ -34,7 +35,7 @@ export function ActionPreviewCard({
     { icon: User, label: "Lead", value: action.leadName },
     { icon: Phone, label: "Phone", value: action.leadPhone },
     { icon: Globe, label: "Source", value: action.leadSource },
-    { icon: Wallet, label: "Budget", value: action.leadBudget },
+    { icon: Wallet, label: "Budget", value: action.leadBudget ? formatBudget(action.leadBudget) : undefined },
     { icon: Building, label: "Property", value: action.leadPropertyType },
     { icon: MapPin, label: "Location", value: action.leadLocation },
     { icon: ArrowRight, label: "Status", value: action.newStatus },
@@ -71,6 +72,9 @@ export function ActionPreviewCard({
       >
         {isApplying ? "Saving..." : "Confirm & Save"}
       </Button>
+      <p className="text-[11px] text-muted-foreground text-center mt-2">
+        Something wrong? Type a correction below
+      </p>
     </div>
   )
 }

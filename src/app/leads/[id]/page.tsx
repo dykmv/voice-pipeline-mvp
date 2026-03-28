@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { AssistantDialog } from "@/components/voice-assistant/assistant-dialog"
 import { PIPELINE_STATUSES, LEAD_SOURCES, PROPERTY_TYPES, TRANSACTION_TYPES, LEAD_ROLES } from "@/lib/types"
-import { cn } from "@/lib/utils"
+import { cn, formatBudget } from "@/lib/utils"
 import type { LeadWithNotes } from "@/lib/types"
 
 export default function LeadDetailPage() {
@@ -298,7 +298,7 @@ export default function LeadDetailPage() {
               {lead.budget && (
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <Wallet className="h-3.5 w-3.5" />
-                  {lead.budget}
+                  {formatBudget(lead.budget)}
                 </div>
               )}
               {lead.propertyType && (

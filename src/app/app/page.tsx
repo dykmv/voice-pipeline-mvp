@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Plus } from "lucide-react"
+import { Plus, Mic, ChevronDown } from "lucide-react"
 import { Navigation } from "@/components/Navigation"
 import { PipelineBoard } from "@/components/PipelineBoard"
 import { LeadForm } from "@/components/LeadForm"
@@ -77,7 +77,20 @@ export default function PipelinePage() {
           </div>
         )}
 
-        <PipelineBoard leads={leads} onStatusChange={handleStatusChange} />
+        {leads.length === 0 && !showForm ? (
+          <div className="flex flex-1 flex-col items-center justify-center py-24 text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+              <Mic className="h-8 w-8 text-primary" />
+            </div>
+            <h2 className="mb-2 text-lg font-semibold">Add your first lead</h2>
+            <p className="mb-6 max-w-xs text-sm text-muted-foreground">
+              Say &quot;New lead Anna, Limassol, apartment, 200K&quot; or type in the bar below
+            </p>
+            <ChevronDown className="h-5 w-5 animate-bounce text-muted-foreground" />
+          </div>
+        ) : (
+          <PipelineBoard leads={leads} onStatusChange={handleStatusChange} />
+        )}
       </main>
 
       {/* Voice assistant — FAB + dialog */}

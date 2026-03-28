@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { useDraggable } from "@dnd-kit/core"
 import { Phone, MapPin, Calendar, AlertCircle, GripVertical } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { cn, formatBudget } from "@/lib/utils"
 
 interface LeadCardProps {
   id: string
@@ -106,7 +106,7 @@ export function LeadCard({
         </div>
         {budget && (
           <span className="shrink-0 text-xs font-medium text-muted-foreground">
-            {budget}
+            {formatBudget(budget)}
           </span>
         )}
       </div>
