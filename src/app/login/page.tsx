@@ -35,14 +35,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="min-h-screen">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-5">
+        <a href="/landing.html">
+          <img src="/placy-logo-white.svg" alt="Placy Pro Copilot" style={{ height: 28 }} />
+        </a>
+      </nav>
+
+      <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mb-4 flex justify-center">
-            <img src="/placy-logo-white.svg" alt="Placy Pro Copilot" className="h-10" />
-          </div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            Placy Pro Copilot
+            Welcome back
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Sign in to manage your leads
@@ -86,6 +90,7 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
+    </div>
     </div>
   )
 }
