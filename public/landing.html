@@ -832,7 +832,7 @@ document.querySelectorAll('.app-tab').forEach(tab=>{
   <div class="placy-chat-header">
     <div class="placy-chat-header-left">
       <div>
-        <div class="placy-chat-header-title">Placy AI Assistant</div>
+        <div class="placy-chat-header-title">Voice Pipeline Assistant</div>
         <div class="placy-chat-header-status"><span class="placy-chat-header-dot"></span>Online</div>
       </div>
     </div>
@@ -995,7 +995,7 @@ document.querySelectorAll('.app-tab').forEach(tab=>{
     }
   });
 
-  // Voice input (Web Speech API)
+  // Voice input (Web Speech API — continuous mode with silence timeout, same as MVP)
   var micBtn = document.getElementById('placyChatMic');
   var recognition = null;
   var isRecording = false;
@@ -1005,26 +1005,45 @@ document.querySelectorAll('.app-tab').forEach(tab=>{
     micBtn.style.display = 'none';
   } else {
     recognition = new SpeechRecognition();
-    recognition.continuous = false;
+    recognition.continuous = true;
     recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    var fullTranscript = '';
+    var silenceTimer = null;
+    var maxTimer = null;
 
     recognition.onresult = function(event){
-      var transcript = event.results[0][0].transcript;
-      if(transcript.trim()){
-        inputEl.value = transcript;
+      fullTranscript = Array.from(event.results).map(function(r){ return r[0].transcript; }).join(' ');
+      inputEl.value = fullTranscript;
+      // Reset silence timer on each new result (5s silence = stop, same as MVP)
+      if(silenceTimer) clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(function(){ recognition.stop(); }, 5000);
+    };
+
+    recognition.onerror = function(){
+      if(silenceTimer) clearTimeout(silenceTimer);
+      if(maxTimer) clearTimeout(maxTimer);
+      if(fullTranscript.trim()){
+        inputEl.value = fullTranscript;
         sendMessage();
       }
       stopRecording();
     };
-    recognition.onerror = function(){
-      stopRecording();
-    };
+
     recognition.onend = function(){
+      if(silenceTimer) clearTimeout(silenceTimer);
+      if(maxTimer) clearTimeout(maxTimer);
+      if(fullTranscript.trim()){
+        inputEl.value = fullTranscript;
+        sendMessage();
+      }
       stopRecording();
     };
 
     function stopRecording(){
       isRecording = false;
+      fullTranscript = '';
       micBtn.classList.remove('recording');
     }
 
@@ -1032,11 +1051,14 @@ document.querySelectorAll('.app-tab').forEach(tab=>{
       if(loading) return;
       if(isRecording){
         recognition.stop();
-        stopRecording();
       } else {
         isRecording = true;
+        fullTranscript = '';
+        inputEl.value = '';
         micBtn.classList.add('recording');
         recognition.start();
+        // Max recording time: 30s (same as MVP)
+        maxTimer = setTimeout(function(){ recognition.stop(); }, 30000);
       }
     });
   }
