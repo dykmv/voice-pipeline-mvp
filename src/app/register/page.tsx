@@ -56,10 +56,12 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen">
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-5">
-        <a href="/landing.html">
-          <img src="/placy-logo-white.svg" alt="Placy Pro Copilot" style={{ height: 28 }} />
-        </a>
+      <nav className="fixed top-0 left-0 right-0 z-50 py-5">
+        <div className="mx-auto flex max-w-[1120px] items-center justify-between px-6 md:px-12">
+          <a href="/landing.html">
+            <img src="/placy-logo-white.svg" alt="Placy Pro Copilot" style={{ height: 28 }} />
+          </a>
+        </div>
       </nav>
 
       <div className="flex min-h-screen items-center justify-center px-4">

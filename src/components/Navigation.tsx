@@ -28,10 +28,10 @@ export function Navigation() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-md md:static md:border-b md:border-t-0">
-      <div className="mx-auto flex max-w-5xl items-center justify-around px-4 py-2 md:justify-between md:py-3">
+      <div className="mx-auto flex max-w-[1120px] items-center justify-around px-6 py-2 md:justify-between md:px-12 md:py-3">
         {/* Brand — desktop only */}
         <div className="hidden md:block">
-          <img src="/placy-logo-white.svg" alt="Placy Pro Copilot" className="h-8" />
+          <img src="/placy-logo-white.svg" alt="Placy Pro Copilot" style={{ height: 28 }} />
         </div>
 
         {/* Nav links */}
