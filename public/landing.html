@@ -699,7 +699,8 @@ document.querySelectorAll('.app-tab').forEach(tab=>{
 }
 .placy-chat-btn:hover{transform:scale(1.05);box-shadow:0 6px 28px rgba(239,169,67,0.45)}
 .placy-chat-btn svg{width:28px;height:28px;fill:#000}
-.placy-chat-btn--hidden{display:none}
+.placy-chat-btn--close svg{display:none}
+.placy-chat-btn--close::before{content:'\00d7';font-size:28px;line-height:1;color:#000;font-weight:300}
 
 .placy-chat-window{
   position:fixed;right:24px;bottom:90px;z-index:9998;
@@ -836,9 +837,6 @@ document.querySelectorAll('.app-tab').forEach(tab=>{
         <div class="placy-chat-header-status"><span class="placy-chat-header-dot"></span>Online</div>
       </div>
     </div>
-    <button class="placy-chat-close" id="placyChatClose" aria-label="Close chat">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
   </div>
   <div class="placy-chat-messages" id="placyChatMessages"></div>
   <div class="placy-chat-input-area">
@@ -858,7 +856,6 @@ document.querySelectorAll('.app-tab').forEach(tab=>{
 
   var btn = document.getElementById('placyChatBtn');
   var win = document.getElementById('placyChatWindow');
-  var closeBtn = document.getElementById('placyChatClose');
   var messagesEl = document.getElementById('placyChatMessages');
   var inputEl = document.getElementById('placyChatInput');
   var sendBtn = document.getElementById('placyChatSend');
@@ -866,24 +863,25 @@ document.querySelectorAll('.app-tab').forEach(tab=>{
   var sessionId = sessionStorage.getItem('placy_chat_session_id') || '';
   var initialized = false;
   var loading = false;
+  var chatOpen = false;
 
-  function openChat(){
-    win.classList.add('placy-chat-window--open');
-    btn.classList.add('placy-chat-btn--hidden');
-    inputEl.focus();
-    if(!initialized){
-      initialized = true;
-      startSession();
+  function toggleChat(){
+    chatOpen = !chatOpen;
+    if(chatOpen){
+      win.classList.add('placy-chat-window--open');
+      btn.classList.add('placy-chat-btn--close');
+      inputEl.focus();
+      if(!initialized){
+        initialized = true;
+        startSession();
+      }
+    } else {
+      win.classList.remove('placy-chat-window--open');
+      btn.classList.remove('placy-chat-btn--close');
     }
   }
 
-  function closeChat(){
-    win.classList.remove('placy-chat-window--open');
-    btn.classList.remove('placy-chat-btn--hidden');
-  }
-
-  btn.addEventListener('click', openChat);
-  closeBtn.addEventListener('click', closeChat);
+  btn.addEventListener('click', toggleChat);
 
   function addBubble(text, sender, imageData){
     var bubble = document.createElement('div');
