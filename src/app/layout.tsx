@@ -10,8 +10,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "Voice Pipeline",
-  description: "Voice-first lead pipeline for real estate agents",
+  title: "Placy Pro Copilot",
+  description: "Placy Pro Copilot — smart lead pipeline for real estate agents",
   viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
 }
 

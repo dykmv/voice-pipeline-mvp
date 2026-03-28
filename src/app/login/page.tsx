@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Mic } from "lucide-react"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -40,12 +39,10 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <div className="mb-4 flex justify-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/15">
-              <Mic className="h-6 w-6 text-primary" />
-            </div>
+            <img src="/placy-logo-white.svg" alt="Placy Pro Copilot" className="h-10" />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            Voice<span className="text-primary">Pipeline</span>
+            Placy Pro Copilot
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Sign in to manage your leads

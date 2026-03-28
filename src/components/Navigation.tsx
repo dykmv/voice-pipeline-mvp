@@ -31,9 +31,7 @@ export function Navigation() {
       <div className="mx-auto flex max-w-5xl items-center justify-around px-4 py-2 md:justify-between md:py-3">
         {/* Brand — desktop only */}
         <div className="hidden md:block">
-          <span className="text-lg font-semibold tracking-tight">
-            Voice<span className="text-primary">Pipeline</span>
-          </span>
+          <img src="/placy-logo-white.svg" alt="Placy Pro Copilot" className="h-8" />
         </div>
 
         {/* Nav links */}
