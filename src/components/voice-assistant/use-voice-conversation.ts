@@ -7,7 +7,6 @@ import {
   type PendingAction,
   type Message,
 } from "./conversation-reducer"
-import { getLanguagePriority, MIN_CONFIDENCE } from "@/lib/speech-lang"
 
 export interface LeadContext {
   leadId: string
@@ -70,7 +69,7 @@ export function useVoiceConversation(leadContext?: LeadContext) {
     [leadContext]
   )
 
-  // Start voice recording with multilingual fallback
+  // Start voice recording
   const startListening = useCallback(() => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition
@@ -82,90 +81,54 @@ export function useVoiceConversation(leadContext?: LeadContext) {
 
     dispatch({ type: "START_LISTENING" })
 
-    const langs = getLanguagePriority()
-    let langIndex = 0
+    const recognition = new SpeechRecognition()
+    recognition.continuous = true
+    recognition.interimResults = false
+    recognition.lang = "en-US"
 
-    function attemptRecognition(idx: number) {
-      if (!SpeechRecognition) return
-      const recognition = new SpeechRecognition()
-      recognition.continuous = true
-      recognition.interimResults = false
-      recognition.lang = langs[idx] || "en-US"
+    let fullTranscript = ""
+    let silenceTimer: ReturnType<typeof setTimeout> | null = null
 
-      let fullTranscript = ""
-      let minConfidence = 1
-      let silenceTimer: ReturnType<typeof setTimeout> | null = null
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      fullTranscript = Array.from(event.results)
+        .map((r) => r[0].transcript)
+        .join(" ")
 
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
-        fullTranscript = Array.from(event.results)
-          .map((r) => r[0].transcript)
-          .join(" ")
-
-        // Track lowest confidence across results
-        for (const result of Array.from(event.results)) {
-          if (result[0].confidence < minConfidence) {
-            minConfidence = result[0].confidence
-          }
-        }
-
-        if (silenceTimer) clearTimeout(silenceTimer)
-        silenceTimer = setTimeout(() => {
-          recognition.stop()
-        }, 5000)
-      }
-
-      recognition.onerror = () => {
-        if (silenceTimer) clearTimeout(silenceTimer)
-
-        // If no transcript and more languages to try, auto-retry
-        if (!fullTranscript && idx < langs.length - 1) {
-          langIndex = idx + 1
-          attemptRecognition(idx + 1)
-          return
-        }
-
-        if (messagesRef.current.length === 0 && !fullTranscript) {
-          dispatch({ type: "CLOSE" })
-        } else if (fullTranscript) {
-          dispatch({ type: "VOICE_CAPTURED", transcript: fullTranscript })
-          sendToAssistant(fullTranscript)
-        } else {
-          dispatch({
-            type: "ASSISTANT_RESPONSE",
-            message: "I didn't catch that. Could you say it again?",
-            action: null,
-            quickReplies: ["Try again"],
-          })
-        }
-      }
-
-      recognition.onend = () => {
-        if (silenceTimer) clearTimeout(silenceTimer)
-
-        // If low confidence and more languages to try, auto-retry
-        if (
-          fullTranscript.trim() &&
-          minConfidence < MIN_CONFIDENCE &&
-          idx < langs.length - 1
-        ) {
-          langIndex = idx + 1
-          attemptRecognition(idx + 1)
-          return
-        }
-
-        if (fullTranscript.trim()) {
-          dispatch({ type: "VOICE_CAPTURED", transcript: fullTranscript })
-          sendToAssistant(fullTranscript)
-        }
-      }
-
-      setTimeout(() => recognition.stop(), 30000)
-
-      recognitionRef.current = recognition
-      recognition.start()
+      if (silenceTimer) clearTimeout(silenceTimer)
+      silenceTimer = setTimeout(() => {
+        recognition.stop()
+      }, 5000)
     }
 
-    attemptRecognition(langIndex)
+    recognition.onerror = () => {
+      if (silenceTimer) clearTimeout(silenceTimer)
+      if (messagesRef.current.length === 0 && !fullTranscript) {
+        dispatch({ type: "CLOSE" })
+      } else if (fullTranscript) {
+        dispatch({ type: "VOICE_CAPTURED", transcript: fullTranscript })
+        sendToAssistant(fullTranscript)
+      } else {
+        dispatch({
+          type: "ASSISTANT_RESPONSE",
+          message: "I didn't catch that. Could you say it again?",
+          action: null,
+          quickReplies: ["Try again"],
+        })
+      }
+    }
+
+    recognition.onend = () => {
+      if (silenceTimer) clearTimeout(silenceTimer)
+      if (fullTranscript.trim()) {
+        dispatch({ type: "VOICE_CAPTURED", transcript: fullTranscript })
+        sendToAssistant(fullTranscript)
+      }
+    }
+
+    setTimeout(() => recognition.stop(), 30000)
+
+    recognitionRef.current = recognition
+    recognition.start()
   }, [sendToAssistant])
 
   const stopListening = useCallback(() => {
